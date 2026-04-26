@@ -1,0 +1,42 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper to check if user is an authorized admin
+    function isAdmin() {
+      return request.auth != null && (
+        request.auth.token.email == 'newmail@gmail.com' || 
+        request.auth.token.email == 'darshithnayak@gmail.com'
+      );
+    }
+
+    // Helper to validate blog data
+    function isValidBlog(data) {
+      return data.keys().hasAll(['title', 'description', 'image', 'link', 'category', 'createdAt'])
+        && data.title is string && data.title.size() <= 200
+        && data.description is string && data.description.size() <= 1000
+        && data.image is string && data.image.size() <= 600
+        && data.link is string && data.link.size() <= 600
+        && data.category is string && data.category.size() <= 50
+        && (data.createdAt == request.time || data.createdAt is timestamp);
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    match /blogs/{blogId} {
+      // Anyone can read blogs
+      allow read: if true;
+      
+      // Only the specific admin can write
+      allow create: if isAdmin() && isValidBlog(request.resource.data);
+      
+      allow update: if isAdmin() && isValidBlog(request.resource.data) 
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['title', 'description', 'image', 'link', 'category']);
+      
+      allow delete: if isAdmin();
+    }
+  }
+}

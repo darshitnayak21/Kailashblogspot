@@ -1,0 +1,24 @@
+{
+  "entities": {
+    "blog": {
+      "title": "Blog Post",
+      "description": "A blog post entry.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "The title of the blog post." },
+        "description": { "type": "string", "description": "A short summary of the blog post." },
+        "image": { "type": "string", "description": "URL to the cover image." },
+        "link": { "type": "string", "description": "External link to the full article." },
+        "category": { "type": "string", "description": "The category/tag for the blog." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp." }
+      },
+      "required": ["title", "description", "image", "link", "category", "createdAt"]
+    }
+  },
+  "firestore": {
+    "blogs": {
+      "schema": "blog",
+      "description": "Public collection of blog posts."
+    }
+  }
+}
